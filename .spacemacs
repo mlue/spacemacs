@@ -31,10 +31,14 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     csv
+     sql
+     python
      html
      yaml
      javascript
      ruby
+     react
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -59,7 +63,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(symbol-overlay find-file-in-repository)
+   dotspacemacs-additional-packages '(symbol-overlay find-file-in-repository add-node-modules-path)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -328,6 +332,9 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  (setq exec-path (append exec-path '("~/.nvm/versions/node/v10.15.1/bin")))
   (my-setup-indent 2) ; indent 2 spaces width
   (global-set-key (kbd "M-n") 'symbol-overlay-jump-next)
 
@@ -338,6 +345,47 @@ you should place your code here."
   (global-set-key (kbd "<f8>") 'symbol-overlay-remove-all)
 
   (global-set-key (kbd "C-x f") 'find-file-in-repository)
+  ;; adjust indents for web-mode to 2 spaces
+  (defun my-web-mode-hook ()
+    "Hooks for Web mode. Adjust indents"
+      ;;; http://web-mode.org/
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2))
+  (add-hook 'web-mode-hook  'my-web-mode-hook)
+  (setq js2-mode-show-parse-errors nil js2-mode-show-strict-warnings nil)
+  (eval-after-load 'js2-mode
+    '(add-hook 'js2-mode-hook #'add-node-modules-path))
+  (defun my/use-eslint-from-node-modules ()
+    (let ((root (locate-dominating-file
+                 (or (buffer-file-name) default-directory)
+                 (lambda (dir)
+                   (let ((eslint (expand-file-name "node_modules/.bin/eslint" dir)))
+                     (and eslint (file-executable-p eslint)))))))
+      (when root
+        (let ((eslint (expand-file-name "node_modules/.bin/eslint" root)))
+          (setq-local flycheck-javascript-eslint-executable eslint)))))
+  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+  (defun eslint-fix-buffer ()
+    "Fixes javascript via eslint"
+    (interactive)
+    (shell-command-on-region
+     ;; beginning and end of buffer
+     (point-min)
+     (point-max)
+     ;; command and parameters
+     "eslint-fix-text"
+     ;; output buffer
+     (current-buffer)
+     ;; replace?
+     t
+     ;; name of the error buffer
+     "*Eslint-Fix Error Buffer*"
+     ;; show error buffer?
+     t))
+
+  (spacemacs/declare-prefix "ee" "eslint")
+  (spacemacs/set-leader-keys  "eef" 'eslint-fix-buffer)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -354,6 +402,14 @@ you should place your code here."
  '(package-selected-packages
    (quote
     (find-file-in-repository highlight yasnippet magit ghub helm yaml-mode symbol-overlay xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org tagedit spaceline smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters pug-mode popwin persp-mode paradox orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree mwim multi-term move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav dumb-jump diminish diff-hl define-word company-web company-tern company-statistics column-enforce-mode coffee-mode clean-aindent-mode chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+ '(safe-local-variable-values
+   (quote
+    ((eval progn
+           (add-to-list
+            (quote exec-path)
+            (concat
+             (locate-dominating-file default-directory ".dir-locals.el")
+             "node_modules/.bin/"))))))
  '(standard-indent 2))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
