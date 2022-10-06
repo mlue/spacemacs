@@ -30,12 +30,12 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(     (typescript :variables
-                      javascript-backend 'tide
-                      typescript-backend 'tide
-                      typescript-fmt-tool 'prettier
-                      typescript-linter 'eslint
-                      typescript-fmt-on-save t)
+   '(
+     (typescript :variables
+                 typescript-backend 'tide
+                 typescript-fmt-tool 'prettier
+                 typescript-linter 'eslint
+                 typescript-fmt-on-save t)
           (javascript :variables
                       javascript-backend 'tide
                       javascript-fmt-tool 'prettier
@@ -47,8 +47,6 @@ values."
      csv
      sql
      html
-     (solidity :variables
-               solidity-flycheck-solc-checker-active t)
      yaml
      javascript
      (ruby :variables
@@ -64,7 +62,6 @@ values."
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      helm
-     coffeescript
      auto-completion
      better-defaults
      emacs-lisp
@@ -74,11 +71,10 @@ values."
         shell-default-height 30
         shell-default-position 'bottom)
      ;; spell-checking
-     syntax-checking
      version-control
      mlue
      prettier
-     rust
+     syntax-checking
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -353,6 +349,7 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (setq create-lockfiles nil)
  ;; tide def func:
  (defun tide-setup-hook ()
     (tide-setup)
@@ -384,15 +381,15 @@ you should place your code here."
 (add-hook 'rjsx-mode-hook 'tide-setup-hook)
 
 
-;; ;; web-mode extra config
-;; (add-hook 'web-mode-hook 'tide-setup-hook
-;;           (lambda () (pcase (file-name-extension buffer-file-name)
-;;                   ("tsx" ('tide-setup-hook))
-;;                   (_ (my-web-mode-hook)))))
-;; (add-hook 'web-mode-hook 'company-mode)
-;; (add-hook 'web-mode-hook 'prettier-js-mode)
-;; (add-hook 'js2-mode-hook 'prettier-js-mode)
-;; (add-hook 'web-mode-hook 'prettier-js-mode)
+;; web-mode extra config
+(add-hook 'web-mode-hook 'tide-setup-hook
+          (lambda () (pcase (file-name-extension buffer-file-name)
+                  ("tsx" ('tide-setup-hook))
+                  (_ (my-web-mode-hook)))))
+(add-hook 'web-mode-hook 'company-mode)
+(add-hook 'web-mode-hook 'prettier-js-mode)
+(add-hook 'js2-mode-hook 'prettier-js-mode)
+(add-hook 'web-mode-hook 'prettier-js-mode)
 (add-hook 'web-mode-hook #'turn-on-smartparens-mode t)
 ;; yasnippet
 (yas-global-mode 1)
@@ -513,7 +510,7 @@ static char *gnus-pointer[] = {
      ("\\?\\?\\?+" . "#dc752f")))
  '(linum-format " %7i ")
  '(package-selected-packages
-   '(company-tabnine graphql-mode org-category-capture magit-popup projectile git-gutter+ transient git-commit with-editor packed find-file-in-repository highlight yasnippet magit ghub helm yaml-mode symbol-overlay xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org tagedit spaceline smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters pug-mode popwin persp-mode paradox orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree mwim multi-term move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav dumb-jump diminish diff-hl define-word company-web company-tern company-statistics column-enforce-mode coffee-mode clean-aindent-mode chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
+   '(helm-lsp lsp-origami lsp-treemacs lsp-ui lsp-mode org-category-capture magit-popup projectile git-gutter+ transient git-commit with-editor packed find-file-in-repository highlight yasnippet magit ghub helm yaml-mode symbol-overlay xterm-color ws-butler winum which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package unfill toc-org tagedit spaceline smeargle slim-mode shell-pop scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters pug-mode popwin persp-mode paradox orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree mwim multi-term move-text mmm-mode minitest markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode linum-relative link-hint less-css-mode json-mode js2-refactor js-doc indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md fuzzy flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav dumb-jump diminish diff-hl define-word company-web company-tern company-statistics column-enforce-mode coffee-mode clean-aindent-mode chruby bundler auto-yasnippet auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))
  '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
  '(safe-local-variable-values
    '((eval progn
